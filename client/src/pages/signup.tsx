@@ -1,58 +1,85 @@
-// Importing color constants from a utility file
 import { COLORS } from "@/utils/colors";
+import { Button, Card, Center, Container, Input, Stack, Title, createStyles   } from "@mantine/core";
+import { AxiosError } from "axios";
+import { Head } from "next/document";
+import { useState, ChangeEvent, FormEvent } from "react";
+import { authApi , IAuthResponse} from "./api/user.api";
+import { notifications } from '@mantine/notifications'; 
 
-// Importing various UI components from the Mantine library
-import { Button, Card, Center, Container, Input, Stack, Title, createStyles } from "@mantine/core";
+const useStyles = createStyles((theme) => ({
+  containerBackgroundColor: {
+    backgroundColor: COLORS.BG 
+  }
+}));
 
-// Importing a component from Next.js to manage the document's head
-import Head from "next/head";
 
-// Creating styles for the components using Mantine's createStyles function
-const useStyles = createStyles((theme) => {
-    return {
-        containerBackgroundColor: {
-            // Setting the background color of a container using a color constant
-            backgroundColor: COLORS.BG
-        }
-    };
-});
-
-// Defining the main function component for the SignupPage
 export default function SignupPage() {
-    // Getting the styles using the useStyles function
     const { classes } = useStyles();
+    const [data, setData] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false);
 
-    // Returning JSX to create the UI of the SignupPage
-    return (
-        <Stack h={"100vh"} align="center" justify="center" className={classes.containerBackgroundColor}>
-            {/* Setting up the document's head */}
-            <Head>
-                <title>Sign Up</title>
-            </Head>
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    }
 
-            {/* Creating a Card component to hold the signup form */}
-            <Card shadow="sm" p="lg" w={800} radius="md" withBorder>
-                {/* Displaying a title for the signup form */}
-                <Title align="center">Register an account</Title>
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const response = await authApi("/signup", data);
+            notifications.show({
+                message: response.message,
+                title: "Success",
+                radius: "md",
+                color: "green",
+                autoClose: 3000
+            });
+        } catch (error) {
+            const err = error as AxiosError<IAuthResponse>;
+            if (err.response && err.response.data) {
+                notifications.show({
+                    message: err.response.data.message,
+                    title: "Failed",
+                    radius: "md",
+                    color: "red",
+                    autoClose: 3000
+                });
+            }
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-                {/* Creating a Container to hold the form elements */}
-                <Container mt={20}>
-                    {/* Creating a form */}
-                    <form>
-                        {/* Input fields for email and password */}
-                        <Input placeholder="Email Address" />
-                        <Input my={10} placeholder="Password" />
+    return <Stack h={"100vh"} align="center" justify="center" className={classes.containerBackgroundColor}>
+        <Head>
+            <title>Sign Up</title>
+        </Head>
+        <Card shadow="sm" p="lg" w={800} radius="md" withBorder>
+            <Title align="center">Register an account</Title>
 
-                        {/* Centering the button */}
-                        <Center>
-                            {/* Creating a button for signing up */}
-                            <Button w={"100%"}>
-                                Sign Up
-                            </Button>
-                        </Center>
-                    </form>
-                </Container>
-            </Card>
-        </Stack>
-    );
+            <Container mt={20}>
+                <form onSubmit={handleSubmit}>
+                    <Input onChange={handleChange}
+                        type="email" name="email" placeholder="Email Address"
+                        value={data.email}
+                    />
+                    <Input name="password" my={10}
+                        onChange={handleChange}
+                        type="password"
+                        value={data.password}
+                        placeholder="Password" />
+                    <Center>
+                        <Button
+                            disabled={data.email.length === 0 || data.password.length === 0}
+                            loading={loading}
+                            w={"100%"} type="submit">
+                             Sign Up
+                        </Button>
+                    </Center>
+                </form>
+
+            </Container>
+        </Card>
+    </Stack>
 }
