@@ -24,7 +24,7 @@ export class UsersService {
             await newUser.save();
             return {
                 success: true,
-                message: 'User created successfully'
+                message: 'User created successfully',
             }
 
 
