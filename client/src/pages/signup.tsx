@@ -1,16 +1,16 @@
-import { COLORS } from "@/utils/colors";
-import { Button, Card, Center, Container, Input, Stack, Title, createStyles   } from "@mantine/core";
-import { AxiosError } from "axios";
-import { Head } from "next/document";
-import { useState, ChangeEvent, FormEvent } from "react";
-import { authApi , IAuthResponse} from "./api/user.api";
-import { notifications } from '@mantine/notifications'; 
+import Head from 'next/head';
+import { Button, Card, Center, Container, Input, Stack, Title, createStyles } from '@mantine/core';
+import { useState, ChangeEvent, FormEvent } from 'react';
+import { AxiosError } from 'axios';
+import { authApi, IAuthResponse } from './api/user.api';
+import { notifications } from '@mantine/notifications';
+import { COLORS } from '@/utils/colors';
 
 const useStyles = createStyles((theme) => ({
-  containerBackgroundColor: {
-    backgroundColor: COLORS.BG 
-  }
-}));
+    containerBackgroundColor: {
+      backgroundColor: COLORS.BG,
+    },
+  }));
 
 
 export default function SignupPage() {
